@@ -1,0 +1,21 @@
+C++ Library for Calculating XYZ, LAB, LUV Data from Spectrum
+
+Notes
+1. Standard Observers
+Link: https://sensing.konicaminolta.us/blog/understanding-standard-observers-in-color-measurement/
+The sensitivity of the human eye varies from person to person, often causing color to appear differently to each individual. This subjectivity often leads to inconsistencies when evaluating or communicating color internally or throughout the supply chain. 
+
+To quantify an object's color using a standardized method, the human eye's (observer) response to these colors must be included in the calculation. 
+
+2. Reference Standard Illuminants
+A standard illuminant is a theoretical source of visible light with a profile (its spectral power distribution) which is published. Standard illuminants provide a basis for comparing images or colors recorded under different lighting.
+
+The CIE is the body responsible for publishing all of the well-known standard illuminants. Each of these is known by a letter or by a letter-number combination. Illuminants A, B, and C were introduced in 1931, with the intention of respectively representing average incandescent light, direct sunlight, and average daylight. Illuminants D represent phases of daylight, Illuminant E is the equal-energy illuminant, while Illuminants F represent fluorescent lamps of various composition.
+
+3. L*A*B*
+
+4. XYZ
+
+
+LINK: https://github.com/colour-science/colour-ocean
+https://github.com/hughsie/colord
