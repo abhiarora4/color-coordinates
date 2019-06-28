@@ -16,7 +16,7 @@ double algo::GetFloatPrecision(double value, double precision)
     return (floor((value * pow(10, precision) + 0.5)) / pow(10, precision)); 
 }
 
-XYData algo::interpolate(XYData& s, double xStart, double xStop, double jump, bool mode)
+XYData algo::interpolate(const XYData& s, double xStart, double xStop, double jump, bool mode)
 {
 	// Handle size of one
 	XYData result;
@@ -64,7 +64,7 @@ XYData algo::interpolate(XYData& s, double xStart, double xStop, double jump, bo
 	return result;
 }
 
-XYData algo::trim(XYData& data, double xStart, double xStop)
+XYData algo::trim(const XYData& data, double xStart, double xStop)
 {
 	XYData result;
 	for (std::size_t i = 0; i < data.length(); i++) {
@@ -78,14 +78,24 @@ XYData algo::trim(XYData& data, double xStart, double xStop)
 	return result;
 }
 
-XYData algo::interpolate(XYData& s, double jump)
+ColorObserver algo::interpolate(ColorObserver& o, double xStart, double xStop, double jump, bool mode)
+{
+	ColorObserver result;
+	result.set_x(interpolate(o.get_x(), xStart, xStop, jump, mode));
+	result.set_y(interpolate(o.get_y(), xStart, xStop, jump, mode));
+	result.set_z(interpolate(o.get_z(), xStart, xStop, jump, mode));
+
+	return result;
+}
+
+XYData algo::interpolate(const XYData& s, double jump)
 {
 	if (s.length() <= 1)
 		return XYData();
 	return interpolate(s, s.x_at_ndx(0), s.x_at_ndx(s.length() - 1), jump);
 }
 
-std::pair<XYData, XYData> algo::intersect(XYData& first, XYData& second)
+std::pair<XYData, XYData> algo::intersect(const XYData& first, const XYData& second)
 {
 	XYData resFirst;
 	XYData resSecond;

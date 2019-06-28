@@ -10,73 +10,36 @@
 #include <filesystem>
 
 class ColorObserver {
-
 public:
 	XYData& get_x(void) { return x_; }
 	XYData& get_y(void) { return y_; }
 	XYData& get_z(void) { return z_; }
 
+	void set_x(const XYData& x) { x_ = x; }
+	void set_y(const XYData& y) { y_ = y; }
+	void set_z(const XYData& z) { z_ = z; }
+
 	void set_x(XYData& x) { x_ = x; }
 	void set_y(XYData& y) { y_ = y; }
 	void set_z(XYData& z) { z_ = z; }
 
-public:
-	ColorObserver& operator=(ColorObserver other)
-	{
-		swap(x_, other.x_);
-		swap(y_, other.y_);
-		swap(z_, other.z_);
-
-		return *this;
-	}
+	bool fromFile(const std::string& xfilename, const std::string& yfilename, const std::string& zfilename);
+	bool is_valid(void) const { return !(x_.empty() or y_.empty() or z_.empty()); }
 
 public:
-	ColorObserver(void) { }
-	ColorObserver(const std::string& xfilename, const std::string& yfilename, 
-		const std::string& zfilename)
-	{
-		std::filesystem::path xPath(xfilename);
-		std::filesystem::path yPath(yfilename);
-		std::filesystem::path zPath(zfilename);
+	friend void swap(ColorObserver& first, ColorObserver& second);
 
-		// if (!(xPath.exists() and yPath.exists() and zPath.exists())) {
-		// 	std::cout << "can't" << std::endl;
-		// 	return;
-		// }
+public:
+	ColorObserver& operator=(ColorObserver other);
 
-		x_.fromFile(xPath);
-		y_.fromFile(yPath);
-		z_.fromFile(zPath);
-	}
-
-	ColorObserver(const std::string& dirname)
-	{
-		ColorObserver(dirname + "/x_bar.csv", dirname + "/y_bar.csv", dirname + "/z_bar.csv");
-	}
-
-	ColorObserver(const ColorObserver& other)
-	{
-		x_ = other.x_;
-		y_ = other.y_;
-		z_ = other.z_;
-	}
-
-	ColorObserver(const XYData& x, const XYData& y, const XYData& z): x_(x), y_(y), z_(z)
-	{
-
-	}
-
-	ColorObserver(ColorObserver&& other)
-	{
-		swap(x_, other.x_);
-		swap(y_, other.y_);
-		swap(z_, other.z_);
-	}
-
-	~ColorObserver(void)
-	{
-
-	}
+public:
+	ColorObserver(void);
+	ColorObserver(const XYData& x, const XYData& y, const XYData& z);
+	ColorObserver(const std::string& xfilename, const std::string& yfilename, const std::string& zfilename);
+	ColorObserver(const std::string& dirname);
+	ColorObserver(const ColorObserver& other);
+	ColorObserver(ColorObserver&& other);
+	~ColorObserver(void);
 
 private:
 	XYData x_;
@@ -85,7 +48,6 @@ private:
 };
 
 class Color {
-
 public:
 	struct TriValues {
 		double x;
@@ -96,8 +58,14 @@ public:
 public:
 	ColorObserver& get_observer(std::string name);
 	bool has_observer(std::string name);
+
 	XYData& get_illuminant(std::string name);
 	bool has_illuminant(std::string name);
+
+	bool insert(std::string name, const ColorObserver& observer);
+	bool insert(std::string name, const XYData& src);
+
+public:
 
 	TriValues to_XYZ(TriValues values);
 	TriValues to_xyz(TriValues values); 
@@ -106,11 +74,16 @@ public:
 	TriValues sd_to_lab(XYData sd, std::string illuminant, std::string observer);
 
 	TriValues ref_XYZ(std::string illuminant, std::string observer);
-
+	friend std::ostream& operator<<(std::ostream& stream, Color& c);
 
 public:
 	Color(void);
 	Color(const std::string& path);
+
+private:
+	static constexpr double WSTART = 360;
+	static constexpr double WSTOP = 830;
+	static constexpr double WJUMP = 5;
 
 private:
 	std::map<std::string, ColorObserver> observer_;
