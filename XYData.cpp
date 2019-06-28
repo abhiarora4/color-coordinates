@@ -44,6 +44,11 @@ XYData::XYData(const std::vector<double>& x, const std::vector<double>& y)
 	fromVector(x, y);
 }
 
+XYData::XYData(const std::string& filename)
+{
+	fromFile(filename);
+}
+
 // Copy Constructor
 XYData::XYData(const XYData& other)
 {
@@ -93,7 +98,7 @@ void XYData::fromVector(const std::vector<double>& x, const std::vector<double>&
 	if (x.size() != y.size())
 		return;
 
-	data_.clear();
+	clear();
 
 	for (size_t i = 0; i < x.size(); i++)
 		data_.push_back(std::make_pair(x[i], y[i]));
@@ -110,9 +115,15 @@ bool XYData::fromFile(const std::string& filename)
 	if (!stream.is_open())
 		return false;
 
+	clear();
 	getline(stream, firstLine_);
 	while (stream >> *this);
 	return true;
+}
+
+void XYData::clear(void)
+{
+	data_.clear();
 }
 
 
@@ -417,6 +428,36 @@ double XYData::y_at_x(const double& x) const
 	return at(x);
 }
 
+Iterator::reference operator*(Iterator& i)
+{
+	return i.iter_->second;
+}
+
+Iterator::reference Iterator::operator->(void)
+{
+	return iter_->second;
+}
+
+Iterator::reference Iterator::operator[](int offset)
+{
+	return iter_[offset].second;
+}
+
+CIterator::reference operator*(CIterator& i)
+{
+	return i.iter_->second;
+}
+
+CIterator::reference CIterator::operator->(void)
+{
+	return iter_->second;
+}
+
+CIterator::reference CIterator::operator[](int offset)
+{
+	return iter_[offset].second;
+}
+
 void scaleXOfFiles()
 {
 	for (auto& dirEntry: std::filesystem::recursive_directory_iterator("./csv/cmfs")) {
@@ -437,28 +478,49 @@ void scaleXOfFiles()
 	}
 }
 
+#ifdef __MAIN__
 int main(int argc, char *argv[])
 {
 	// ColorObserver obs("./csv/cmfs/CIE 1931 2 Degree Standard Observer");
-	Color c("./../csv");
+	// Color c("./../csv");
+	// std::cout << c;
 
-	return 0;
+	// Color::TriValues v = c.ref_XYZ("D65", "CIE 1931 2 Degree Standard Observer");
+	// std::cout << "X: " << v.x << " Y: " << v.y << " Z: " << v.z << std::endl;
+
+	// return 0;
 
 	XYData d65;
-	d65.fromFile("./csv/illuminants/D65.csv");
+	d65.fromFile("../csv/illuminants/D65.csv");
+
+	std::cout << d65;
+	std::cout << "Iterator" << std::endl;
+	for (auto& i: d65)
+		std::cout << i << std::endl;
+	for (auto& i: d65)
+		i = 5;
+	std::cout << "After Converting" << std::endl;
+	for (auto& i: d65)
+		std::cout << i << std::endl;
+
+
+	return 0;
 
 	d65 = algo::interpolate(d65, 360, 830, 1);
 
 	XYData obs2_x;
-	obs2_x.fromFile("./csv/cmfs/CIE 1931 2 Degree Standard Observer/x_bar.csv");
+	obs2_x.fromFile("../csv/cmfs/CIE 1931 2 Degree Standard Observer/x_bar.csv");
+	obs2_x = algo::interpolate(obs2_x, 360, 830, 1);
 	// obs2_x = algo::interpolate(obs2_x, 360, 780, 5);
 
 	XYData obs2_y;
-	obs2_y.fromFile("./csv/cmfs/CIE 1931 2 Degree Standard Observer/y_bar.csv");
+	obs2_y.fromFile("../csv/cmfs/CIE 1931 2 Degree Standard Observer/y_bar.csv");
+	obs2_y = algo::interpolate(obs2_y, 360, 830, 1);
 	// obs2_y = algo::interpolate(obs2_y, 360, 780, 5);
 
 	XYData obs2_z;
-	obs2_z.fromFile("csv/cmfs/CIE 1931 2 Degree Standard Observer/z_bar.csv");
+	obs2_z.fromFile("../csv/cmfs/CIE 1931 2 Degree Standard Observer/z_bar.csv");
+	obs2_z = algo::interpolate(obs2_z, 360, 830, 1);
 	// obs2_z = algo::interpolate(obs2_z, 360, 780, 5);
 
 	std::cout << "----------------D65----------------" << std::endl;
@@ -508,3 +570,5 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+#endif
